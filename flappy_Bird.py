@@ -103,6 +103,7 @@ class Pipe():
 
         self.top = 0
         self.bottom = 0
+
         self.PIPE_TOP =pygame.transform.flip(PIPE_IMG, False, True)
         self.PIPE_BOTTOM = PIPE_IMG
 
@@ -127,7 +128,7 @@ class Pipe():
         top_mask = pygame.mask.from_surface(self.PIPE_TOP)
         bottom_mask = pygame.mask.from_surface(self.PIPE_BOTTOM)
 
-        top_offset = (self.x -bird.x, self.top - round(bird.y))
+        top_offset = (self.x - bird.x, self.top - round(bird.y))
         bottom_offset = (self.x - bird.x, self.bottom - round(bird.y))
 
         b_point = bird_mask.overlap(bottom_mask,bottom_offset)
@@ -183,15 +184,49 @@ def main():
     base = Base(730)
     pipes= [Pipe(700)]
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    clock = pygame.time.Clock()
+
+    score = 0
+    add_pipe = False
 
     run=True
     while run:
+        clock.tick(30)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
+        rem = []
         for pipe in pipes:
+            if pipe.collide(bird):
+                pass
+            #Pipe out from the screen
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                rem.append(pipe)
+                #print("pipes Tcroisa  :", len(pipes))
+    
+            if not pipe.passed and pipe.x < bird.x :
+                pipe.passed = True
+                add_pipe = True
+
             pipe.move()
+
+        
+
+        if add_pipe:
+            score += 1
+            pipes.append(Pipe(700))
+            #print("pipes add :", len(pipes))
+            add_pipe = False
+            
+
+        for r in rem:
+            pipes.remove(r)
+            #print("pipes rem :", len(pipes))
+     
+            
+        
+    
+
         base.move()
         draw_window( win, bird, pipes, base)
         
